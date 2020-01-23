@@ -1,0 +1,11 @@
+pt-BR:
+  activerecord:
+    models:
+      addon_price: 'Preço do adicional'
+    attributes:
+      addon_price:
+        daily_rate: 'Diária'
+        addon: 'Adicional'
+        addon_id: 'Adicional'
+        subsidiary: 'Filial'
+        subsidiary_id: 'Filial'

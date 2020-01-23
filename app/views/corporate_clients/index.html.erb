@@ -1,0 +1,11 @@
+<h1>Clientes corporativos</h1>
+
+<%= link_to 'Registrar cliente corporativo', new_corporate_client_path, class: 'btn btn-primary mt-1 mb-1' %>
+
+<% if @corporate_clients.any? %>
+  <ul>
+    <% @corporate_clients.each do |client| %>
+      <li class='mb-1 mt-1'><%= link_to client.trade_name, client %></li>
+    <% end %>
+  </ul>
+<% end %>

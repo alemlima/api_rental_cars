@@ -1,0 +1,15 @@
+<h1>Confirmar dados da locação</h1>
+<%= render partial: 'rental_information', locals: { rental: @rental } %>
+<dl class='row'>
+  <dt class='col-sm-3'><%= Car.human_attribute_name('license_plate') %>:</dt>
+  <dd class='col-sm-9'><%= @car.license_plate %></dd>
+  <% @rental.rental_items.each do |rental_item| %>
+    <% if !rental_item.car? %>
+      <dt class='col-sm-3'><%= rental_item.rentable.addon.name %>:</dt>
+      <dd class='col-sm-9'> n <%= rental_item.rentable.registration_number  %></dd>
+    <% end %>
+  <% end %>
+</dl>
+<% if @rental.in_review? %>
+  <%= link_to 'Confirmar', start_rental_path, method: :post, class: 'btn btn-success' %>
+<% end %>

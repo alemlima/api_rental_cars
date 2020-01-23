@@ -1,0 +1,12 @@
+<%= render partial: 'rental_information', locals: { rental: @rental } %>
+<% if current_user.admin? || current_user.subsidiary == @rental.subsidiary %>
+  <p>
+  <% if @rental.scheduled? %>
+    <%= link_to 'Iniciar locação', review_rental_path(@rental), class: 'btn btn-primary' %>
+  <% elsif @rental.in_review? %>
+    <%= link_to 'Continuar locação', review_rental_path(@rental), class: 'btn btn-secondary' %>
+  <% elsif @rental.finalized? && current_user.admin? %>
+    <%= link_to 'Reportar problema', report_rental_path(@rental), class: 'btn btn-warning' %>
+  <% end %>
+  </p>
+<% end %>

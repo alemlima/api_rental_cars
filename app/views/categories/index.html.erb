@@ -1,0 +1,27 @@
+<h1>Categorias de locação</h1>
+
+<%= link_to 'Nova Categoria', new_category_path%>
+
+<% if @categories.any? %>
+<table class='table table-striped mt-1 mb-1'>
+  <thead class='thead-dark'>
+    <tr>
+      <th scope="col"><%= Category.model_name.human %></th>
+      <th scope="col"><%= Category.human_attribute_name('daily_rate') %></th>
+      <th scope="col"><%= Category.human_attribute_name('car_insurance') %></th>
+      <th scope="col"><%= Category.human_attribute_name('third_party_insurance') %></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @categories.each do |category| %>
+      <tr>
+        <td><%= link_to category.name, category_path(category) %></td>
+        <td><%= number_to_currency(category.daily_rate) %></td>
+        <td><%= number_to_currency(category.car_insurance) %></td>
+        <td><%= number_to_currency(category.third_party_insurance) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+<% end %>

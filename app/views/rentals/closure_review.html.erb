@@ -1,0 +1,18 @@
+<h1>Finalizar locação</h1>
+<%= render partial: 'rental_information', locals: { rental: @rental } %>
+<dl class='row'>
+<% @rental.rental_items.each do |rental_item| %>
+  <% if !rental_item.car? %>
+    <dt class='col-sm-3'><%= rental_item.rentable.addon.name %>:</dt>
+    <dd class='col-sm-9'> n <%= rental_item.rentable.registration_number  %></dd>
+  <% end %>
+<% end %>
+</dl>
+<h2>Preço final: <%= number_to_currency(@rental.calculate_final_price) %></h2>
+<dl class='row'>
+  <dt class='col-sm-3'><%= Car.human_attribute_name('license_plate') %>:</dt>
+  <dd class='col-sm-9'><%= @rental.car.license_plate %></dd>
+</dl>
+<% if @rental.ongoing? %>
+  <%= link_to 'Finalizar locação', finalize_rental_path, method: :post, class: 'btn btn-danger' %>
+<% end %>

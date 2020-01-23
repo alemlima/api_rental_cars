@@ -1,0 +1,38 @@
+<h1>Locação de:  <%= rental.client.name %></h1>
+<h3>Status: 
+  <% if rental.scheduled? %>
+    <span class="badge badge-info"><%= t(rental.status)%></span>
+  <% elsif rental.in_review? %>
+    <span class="badge badge-primary"><%= t(rental.status)%></span>
+  <% elsif rental.ongoing? %>
+    <span class="badge badge-success"><%= t(rental.status)%></span>
+  <% elsif rental.finalized? %>
+    <span class="badge badge-danger"><%= t(rental.status)%></span>
+  <% end %>
+</h3>
+
+<dl class='row'>
+  <dt class='col-sm-3'><%= Rental.human_attribute_name('reservation_code') %>:</dt>
+  <dd class='col-sm-9'><%= rental.reservation_code %></dd>
+
+  <dt class='col-sm-3'><%= Client.human_attribute_name('email') %>:</dt>
+  <dd class='col-sm-9'><%= rental.client.email %></dd>
+
+  <dt class='col-sm-3'>CPF/CNPJ:</dt>
+  <dd class='col-sm-9'><%= rental.client.cpf %></dd>
+
+  <dt class='col-sm-3'><%= Rental.human_attribute_name('start_date') %>:</dt>
+  <dd class='col-sm-9'><%= l rental.start_date, format: :long %></dd>
+
+  <dt class='col-sm-3'><%= Rental.human_attribute_name('end_date') %>:</dt>
+  <dd class='col-sm-9'><%= l rental.end_date, format: :long  %></dd>
+
+  <dt class='col-sm-3'><%= Rental.human_attribute_name('subsidiary') %>:</dt>
+  <dd class='col-sm-9'><%= rental.subsidiary.name %></dd>
+
+  <dt class='col-sm-3'><%= Rental.human_attribute_name('category') %>:</dt>
+  <dd class='col-sm-9'><%= rental.category.name  %></dd>
+
+  <dt class='col-sm-3'><%= Rental.human_attribute_name('price_projection') %>:</dt>
+  <dd class='col-sm-9'><%= number_to_currency(rental.calculate_price_projection) %></dd>
+</dl>

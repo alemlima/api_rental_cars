@@ -1,0 +1,44 @@
+<h1>Configurar preços de acessórios</h1>
+<% if !@messages.nil?  %>
+  <div class="alert alert-danger">
+    <ul>
+      <% @messages.each do |message| %>
+        <li><%= message  %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<table class='table table-striped'>
+  <thead class='thead-dark'>
+    <tr>
+      <th scope="col"><%= Addon.model_name.human %></th>
+      <th scope="col"><%= AddonPrice.human_attribute_name('daily_rate') %></th>
+    </tr>
+  </thead>
+  <tbody>
+    <%= form_tag addon_prices_path, method: :post do %>
+      <% @addon_prices.each do |addon, addon_price| %>
+        <tr>
+          <%= fields_for 'addon_prices[]', addon_price do |r| %>
+            <div class=<%= "addon_price#{addon.id}" %>>
+              <td><%= addon.name %></td>
+              <%= r.hidden_field(:addon_id, :value=>addon.id) %>
+              <td>
+                <div class="input-group mb-0">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">$</span>
+                  </div>
+                  <%= r.number_field(:daily_rate, class:"daily_rate form-control", describedby: 'basic-addon1') %>
+                </div>
+              </td>
+            </div>
+          <% end %>
+        </tr>
+      <% end %>
+      <tr>
+        <td> <%= submit_tag 'Enviar', class: 'btn btn-primary' %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

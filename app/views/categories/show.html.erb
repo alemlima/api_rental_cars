@@ -1,0 +1,11 @@
+<h1> Categoria: <%= @category.name%> </h1>
+
+<dt>
+  <dd>Nome: <%= @category.name %></dd>
+  <dd>Diária padrão: <%= number_to_currency(@category.daily_rate)%></dd>
+  <dd>Seguro padrão do carro: <%= number_to_currency(@category.car_insurance)%></dd>
+  <dd>Seguro padrão contra terceiros: <%= number_to_currency(@category.third_party_insurance)%></dd>
+</dt>
+
+<%= link_to 'Voltar', categories_path %>
+<%= link_to 'Editar', edit_category_path(@category) %>

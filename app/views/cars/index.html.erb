@@ -1,0 +1,32 @@
+<h1>Carros</h1>
+<%= link_to 'Registrar novo carro', new_car_path, class: 'btn btn-primary mb-1 mt-1' %>
+<% if @cars.any? %>
+  <table class='table table-striped mt-1 mb-1'>
+    <thead class='thead-dark'>
+      <tr>
+        <th scope='col'><%= Car.human_attribute_name('license_plate') %>: </th>
+        <th scope='col'><%= Car.human_attribute_name('car_model') %>: </th>
+        <th scope='col'><%= Car.human_attribute_name('color') %>: </th>
+        <th scope='col'><%= Category.model_name.human %>: </th>
+        <th scope='col'><%= Car.human_attribute_name('status') %>: </th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @cars.each do |car| %>
+        <tr>
+          <td><%= link_to car.license_plate, car_path(car) %></td>
+          <td><%= car.car_model.name %></td>
+          <td><%= car.color %></td>
+          <td><%= car.car_model.category.name %></td>
+          <td>
+            <% if car.available? %>
+              <span class='badge badge-success'><%= t(car.status) %></span>
+            <% elsif car.unavailable? %>
+              <span class='badge badge-danger'><%= t(car.status) %></span>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

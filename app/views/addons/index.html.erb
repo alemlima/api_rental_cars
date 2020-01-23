@@ -1,0 +1,18 @@
+<h1>Adicionais de locação</h1>
+<%= link_to 'Cadastrar', new_addon_path, class: 'btn btn-primary mt-1 mb-1' %>
+<%= link_to 'Preços de adicionais de locação', addon_prices_path, class: 'btn btn-primary mt-1 mb-1' %>
+<div class="cards mb-1 mt-1">
+  <% @addons.each do |addon| %>
+    <div class="card" id="addon-<%= addon.id %>" style="width: 18rem;">
+      <% if addon.photo.attached? %>
+        <%= image_tag addon.photo, class: 'card-img-top' %>
+      <% end  %>
+      <div class="card-body">
+        <h5 class="card-title"><%= addon.name %></h5>
+        <p class="card-text"><%= addon.description %></p>
+        <p class="card-text"><%= Addon.human_attribute_name('standard_daily_rate') %>: <%= number_to_currency(addon.standard_daily_rate) %></p>
+        <%= link_to 'Editar', edit_addon_path(addon), class: 'btn btn-primary' %>
+      </div>
+    </div>
+  <% end %>
+</div>

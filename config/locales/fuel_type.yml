@@ -1,0 +1,13 @@
+pt-BR:
+  activerecord:
+    models:
+      fuel_type: 'Combustível'
+    attributes:
+      fuel_type:
+        name: 'Nome'
+    errors:
+      models:
+        fuel_type:
+          attributes:
+            name:
+              blank: 'não pode ficar em branco.'
