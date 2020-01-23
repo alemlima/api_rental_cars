@@ -4,13 +4,17 @@ class Api::V1::CarsController < Api::V1::ApiController
     if @car
       render json: @car
     else
-      head :not_found
+      render json: 'Record not found', status: :not_found
     end
   end
   
   def index
     @cars = Car.all
-    render json: @cars
+    unless @cars.empty?
+      render json: @cars
+    else
+      render json: 'No records found', status: :not_found
+    end
   end
 
   def create

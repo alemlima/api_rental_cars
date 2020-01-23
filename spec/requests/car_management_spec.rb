@@ -1,31 +1,29 @@
 require 'rails_helper'
   describe "Car management" do
     context 'show' do
-      it 'renders a car correctly' do
-        car = create(:car)
+        it 'renders a car correctly' do
+          car = create(:car)
 
-        get api_v1_car_path(car)
+          get api_v1_car_path(car)
 
-        json = JSON.parse(response.body, symbolize_names: true)
-
-        expect(response).to have_http_status(:ok)
-        
-
-        expect(json[:car_model_id]).to eq(car.car_model_id)    
-        expect(json[:license_plate]).to eq(car.license_plate)    
-        expect(json[:car_km]).to eq(car.car_km)    
-        expect(json[:color]).to eq(car.color)    
-        expect(json[:subsidiary_id]).to eq(car.subsidiary_id)
-      end
-      
-      it 'car was not found' do
-        get api_v1_car_path(id: 9999)
-
-        expect(response).to have_http_status(:not_found)
+          json = JSON.parse(response.body, symbolize_names: true)
+          expect(response).to have_http_status(:ok)
           
-      end
-      
-    end
+          
+          expect(json[:car_model_id]).to eq(car.car_model_id)    
+          expect(json[:license_plate]).to eq(car.license_plate)    
+          expect(json[:car_km]).to eq(car.car_km)    
+          expect(json[:color]).to eq(car.color)    
+          expect(json[:subsidiary_id]).to eq(car.subsidiary_id)
+        end
+        
+        it 'but car was not found' do
+          get api_v1_car_path(id: 9999)
+          
+          expect(response).to have_http_status(:not_found)
+          expect(response.body).to include('Record not found')  
+        end
+     end
 
     context 'index' do
       it 'render cars correctly' do
@@ -35,7 +33,7 @@ require 'rails_helper'
         get api_v1_cars_path
 
         json = JSON.parse(response.body, symbolize_names: true)
-
+        
         expect(response).to have_http_status(:ok)
         expect(json[0][:car_model_id]).to eq(car.car_model_id)    
         expect(json[0][:license_plate]).to eq(car.license_plate)    
@@ -52,19 +50,31 @@ require 'rails_helper'
         expect(json.size).to eq(2)
       end
 
+      it 'does not have any car'do
+        
+        get api_v1_cars_path
+        
+        expect(response).to have_http_status(:not_found)
+        expect(response.body).to include('No records found')
+
+      end
+    end
+
       context 'create' do
         it 'create a car correctly' do
           subsidiary = create(:subsidiary)
           car_model = create(:car_model)
 
-          post api_v1_cars_path, params: 
-                                              {
-                                                car_km: 1000,
-                                                license_plate: 'ABC1234',
-                                                color: 'Azul',
-                                                subsidiary_id: subsidiary.id,
-                                                car_model_id: car_model.id,
-                                              }
+          expect {
+            post api_v1_cars_path, params:{
+                                            car_km: 1000,
+                                            license_plate: 'ABC1234',
+                                            color: 'Azul',
+                                            subsidiary_id: subsidiary.id,
+                                            car_model_id: car_model.id,
+                                          }
+                 }.to change(Car, :count).by(1)
+
           expect(response).to have_http_status(:created)
           expect(response.body).to include('Created successfully')
 
@@ -72,16 +82,41 @@ require 'rails_helper'
           expect(car.car_km).to eq(1000)                                          
           expect(car.license_plate).to eq('ABC1234')                                          
           expect(car.color).to eq('Azul')
+
+
         end
 
-        it 'should not create if missing parameter' do
+        it 'should not create if missing a parameter' do
           post api_v1_cars_path, params: {}
 
           expect(response).to have_http_status(412)
           expect(response.body).to include('Validation error')
 
+         end
+
+        xit 'should return status 500 if some unexpected error ocurred' do
+         
+          allow_any_instance_of(Car).to receive(:save).and_return('And unexpected error ocurred')
+
+          subsidiary = create(:subsidiary)
+          car_model = create(:car_model)
+
+                    
+          post api_v1_cars_path, params: {
+                                          car_km: 1000,
+                                          license_plate: 'ABC1234',
+                                          color: 'Azul',
+                                          subsidiary_id: subsidiary.id,
+                                          car_model_id: car_model.id,    
+                                         }
+                                         
+
+          expect(response).to have_http_status(500)
+          expect(response.body).to include('And unexpected error ocurred')
+                                         
         end
-      end
+        
+       end
 
       context 'update' do
         it 'should update car successfully' do
@@ -100,13 +135,19 @@ require 'rails_helper'
          expect(car.car_km).to eq(20000)
          expect(car.license_plate).to eq('DEF5678')
          expect(car.color).to eq('Preto')
+
         end
 
-        #incluir verificação create ao invés de update
-      end
+        it 'should not create another car when updating ' do
+          car = create(:car, license_plate:'ABC-0987')
+          expect{
+            patch api_v1_car_path(car), params: {license_plate: 'DEF-1234'}
+                }.to change(Car, :count).by(0)
+        end
+
+       end
       
-      
-    end
+   end
     
-  end
+
   
