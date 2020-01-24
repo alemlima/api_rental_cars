@@ -19,7 +19,7 @@ class Api::V1::CarsController < Api::V1::ApiController
       @car.save
       render json: {message: 'Created successfully'}, status: :created 
     else
-      render json: {Validation_failure: "#{@car.errors.full_messages}"}, status: 412
+      render json: {Validation_failure: "#{@car.errors.full_messages}"}, status: :precondition_failed
     end
   end
   

@@ -4,10 +4,10 @@ class Api::V1::ApiController < ActionController::API
   
   private
     def unexpected_error
-      render json: { message: 'An unexpected error ocurred'}, status: 500
+      render json: { message: 'An unexpected error ocurred'}, status: :internal_server_error
     end
 
     def record_not_found
-      render json: { message: 'The record you are looking for was not found on the database'}, status: 404
+      render json: { message: 'The record you are looking for was not found on the database'}, status: :not_found
     end
 end
