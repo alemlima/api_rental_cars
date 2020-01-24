@@ -19,9 +19,11 @@ require 'rails_helper'
         
         it 'but car was not found' do
           get api_v1_car_path(id: 9999)
-          
+
+          json = JSON.parse(response.body)
+
           expect(response).to have_http_status(:not_found)
-          expect(response.body).to include('Record not found')  
+          expect(json['message']).to eq('The record you are looking for was not found on the database')  
         end
      end
 
@@ -87,16 +89,21 @@ require 'rails_helper'
         end
 
         it 'should not create if missing a parameter' do
-          post api_v1_cars_path, params: {}
+          post api_v1_cars_path, params: {
+                                            car_km: 1000,
+                                            license_plate: 'ABC1234',
+                                            color: 'Azul',
+                                          }
 
+          json = JSON.parse(response.body)
           expect(response).to have_http_status(412)
-          expect(response.body).to include('Validation error')
-
+          expect(json['Validation_failure']).to include('Modelo é obrigatório')
+          expect(json['Validation_failure']).to include('Filial é obrigatório(a)')                                  
          end
 
-        xit 'should return status 500 if some unexpected error ocurred' do
+        it 'should return status 500 if some unexpected error ocurred' do
          
-          allow_any_instance_of(Car).to receive(:save).and_return('And unexpected error ocurred')
+          allow_any_instance_of(Car).to receive(:save).and_raise(ActiveRecord::ActiveRecordError)
 
           subsidiary = create(:subsidiary)
           car_model = create(:car_model)
@@ -110,9 +117,9 @@ require 'rails_helper'
                                           car_model_id: car_model.id,    
                                          }
                                          
-
+          json = JSON.parse(response.body)                               
           expect(response).to have_http_status(500)
-          expect(response.body).to include('And unexpected error ocurred')
+          expect(json['message']).to eq('An unexpected error ocurred')
                                          
         end
         
@@ -146,6 +153,21 @@ require 'rails_helper'
         end
 
        end
+
+       context 'delete' do
+        it 'should delete a car successfully'do
+          car = create(:car, license_plate: 'ABC-1234')
+          other_car = create(:car, license_plate: 'DEF-5678')
+
+          delete api_v1_car_path(car)
+
+          json = JSON.parse(response.body)
+          
+          expect(response).to have_http_status(:ok)
+          expect(json['message']).to eq('Deleted successfully')
+          expect(Car.find_by(license_plate: 'ABC-1234')).to eq(nil)
+        end
+      end
       
    end
     
