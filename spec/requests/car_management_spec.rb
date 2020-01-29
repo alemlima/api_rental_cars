@@ -96,6 +96,7 @@ require 'rails_helper'
                                           }
 
           json = JSON.parse(response.body)
+          pp json
           expect(response).to have_http_status(412)
           expect(json['Validation_failure']).to include('Modelo é obrigatório')
           expect(json['Validation_failure']).to include('Filial é obrigatório(a)')                                  
