@@ -7,4 +7,7 @@ class Car < ApplicationRecord
   validates :color, presence: true
   validates :license_plate, presence: true
   validates :license_plate, uniqueness: true
+  has_one_attached :photo
+
+ 
 end

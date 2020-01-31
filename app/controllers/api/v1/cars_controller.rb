@@ -1,7 +1,8 @@
 class Api::V1::CarsController < Api::V1::ApiController
   def show
     @car = Car.find(params[:id])
-    render json: @car
+    @photo = url_for(@car.photo)
+    render json: {car: @car, photo: @photo}
   end
   
   def index
@@ -15,17 +16,21 @@ class Api::V1::CarsController < Api::V1::ApiController
 
   def create
     @car = Car.new(car_params)
+    
     if @car.valid?
-      @car.save
+      #photo_path = params.permit(:photo)["photo"]
+      #@car.photo.attach(io: File.open(photo_path), filename: photo_path.split('/')[-1])
+      @car.save!
       render json: {message: 'Created successfully'}, status: :created 
     else
-      render json: {Validation_failure: "#{@car.errors.full_messages}"}, status: :precondition_failed
+      render json: {Validation_failure: @car.errors.full_messages}, status: :precondition_failed
     end
   end
   
   def update 
     @car = Car.find(params[:id])
     @car.update(car_params)
+    
       render json: {message: 'Updated successfully'}, status: :ok
   end
 

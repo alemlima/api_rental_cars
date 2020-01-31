@@ -3,18 +3,21 @@ require 'rails_helper'
     context 'show' do
         it 'renders a car correctly' do
           car = create(:car)
+          car.photo.attach(io: File.open('spec/support/uno.jpeg'), filename: 'uno.jpeg', content_type: 'image/jpeg')
 
+          
           get api_v1_car_path(car)
-
+          
           json = JSON.parse(response.body, symbolize_names: true)
           expect(response).to have_http_status(:ok)
           
-          
-          expect(json[:car_model_id]).to eq(car.car_model_id)    
-          expect(json[:license_plate]).to eq(car.license_plate)    
-          expect(json[:car_km]).to eq(car.car_km)    
-          expect(json[:color]).to eq(car.color)    
-          expect(json[:subsidiary_id]).to eq(car.subsidiary_id)
+          pp json
+          expect(json[:car][:car_model_id]).to eq(car.car_model_id)    
+          expect(json[:car][:license_plate]).to eq(car.license_plate)    
+          expect(json[:car][:car_km]).to eq(car.car_km)    
+          expect(json[:car][:color]).to eq(car.color)    
+          expect(json[:car][:subsidiary_id]).to eq(car.subsidiary_id)
+          expect(json[:photo]).to include('uno.jpeg')
         end
         
         it 'but car was not found' do
@@ -69,11 +72,11 @@ require 'rails_helper'
 
           expect {
             post api_v1_cars_path, params:{
-                                            car_km: 1000,
-                                            license_plate: 'ABC1234',
-                                            color: 'Azul',
-                                            subsidiary_id: subsidiary.id,
-                                            car_model_id: car_model.id,
+                                                  car_km: 1000,
+                                                  license_plate: 'ABC1234',
+                                                  color: 'Azul',
+                                                  subsidiary_id: subsidiary.id,
+                                                  car_model_id: car_model.id,
                                           }
                  }.to change(Car, :count).by(1)
 
@@ -90,38 +93,64 @@ require 'rails_helper'
 
         it 'should not create if missing a parameter' do
           post api_v1_cars_path, params: {
-                                            car_km: 1000,
-                                            license_plate: 'ABC1234',
-                                            color: 'Azul',
+                                                  car_km: 1000,
+                                                  license_plate: 'ABC1234',
+                                                  color: 'Azul'
                                           }
 
           json = JSON.parse(response.body)
           pp json
           expect(response).to have_http_status(412)
-          expect(json['Validation_failure']).to include('Modelo é obrigatório')
+          expect(json['Validation_failure']).to include('Modelo é obrigatório.')
           expect(json['Validation_failure']).to include('Filial é obrigatório(a)')                                  
          end
 
         it 'should return status 500 if some unexpected error ocurred' do
          
-          allow_any_instance_of(Car).to receive(:save).and_raise(ActiveRecord::ActiveRecordError)
+          allow_any_instance_of(Car).to receive(:save!).and_raise(ActiveRecord::ActiveRecordError)
 
           subsidiary = create(:subsidiary)
           car_model = create(:car_model)
 
                     
           post api_v1_cars_path, params: {
-                                          car_km: 1000,
-                                          license_plate: 'ABC1234',
-                                          color: 'Azul',
-                                          subsidiary_id: subsidiary.id,
-                                          car_model_id: car_model.id,    
-                                         }
+                                                car_km: 1000,
+                                                license_plate: 'ABC1234',
+                                                color: 'Azul',
+                                                subsidiary_id: subsidiary.id,
+                                                car_model_id: car_model.id,    
+                                          }
                                          
           json = JSON.parse(response.body)                               
           expect(response).to have_http_status(500)
           expect(json['message']).to eq('An unexpected error ocurred')
                                          
+        end
+
+        it 'upload a car photo correctly' do
+          subsidiary = create(:subsidiary)
+          car_model = create(:car_model)
+
+          
+            post api_v1_cars_path, params:{ 
+                                                  car_km: 1000,
+                                                  license_plate: 'ABC1234',
+                                                  color: 'Azul',
+                                                  subsidiary_id: subsidiary.id,
+                                                  car_model_id: car_model.id,
+                                                  photo: Rails.root.join('spec/support/uno.jpeg')
+                                          }
+          pp response.body                                
+          expect(response).to have_http_status(:created)
+          expect(response.body).to include('Created successfully')
+
+          car = Car.last
+          pp car.photo                                        
+          expect(car.car_km).to eq(1000)                                          
+          expect(car.license_plate).to eq('ABC1234')                                          
+          expect(car.color).to eq('Azul')
+          expect(car.photo.attached?).to eq(true)                                
+
         end
         
        end
@@ -131,10 +160,11 @@ require 'rails_helper'
           car = create(:car, car_km: 1000, license_plate: 'ABC1234', color: 'Azul')
 
           put api_v1_car_path(car.id), params: {
-                                              car_km: 20000,
-                                              license_plate: 'DEF5678',
-                                              color: 'Preto',
-                                             }
+                                                      car_km: 20000,
+                                                      license_plate: 'DEF5678',
+                                                      color: 'Preto',
+                                                      photo: Rails.root.join('spec/support/gtr.jpeg')
+                                               }
 
          expect(response).to have_http_status(:ok)
          expect(response.body).to include('Updated successfully')
